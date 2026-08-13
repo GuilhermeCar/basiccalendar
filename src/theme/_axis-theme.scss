@@ -1,0 +1,17 @@
+@use './_variables';
+@use './_material';
+@use './_forms';
+@use './_buttons';
+@use './_cards';
+@use './_typography';
+
+ion-header {
+  box-shadow: none;
+}
+
+ion-toolbar {
+  --background: var(--axis-color-surface);
+  --color: var(--axis-color-text);
+  --border-color: var(--axis-color-border);
+  --border-width: 0 0 1px 0;
+}

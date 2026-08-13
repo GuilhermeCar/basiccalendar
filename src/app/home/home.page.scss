@@ -1,0 +1,216 @@
+.home-page {
+  padding: 28px 20px 24px;
+}
+
+.home-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-greeting {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--axis-color-text-secondary);
+  font-size: 14px;
+}
+
+.home-title {
+  margin: 0;
+  color: var(--axis-color-text);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.home-summary {
+  display: block;
+  margin-top: 4px;
+  color: var(--axis-color-text-secondary);
+  font-size: 13px;
+}
+
+.profile-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--axis-color-surface);
+}
+
+.profile-image {
+  width: 46px;
+  height: 46px;
+  border: 2px solid var(--axis-color-surface);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: var(--axis-shadow-sm);
+}
+
+.home-search {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.search-field {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--axis-color-border);
+  border-radius: var(--axis-radius-lg);
+  background: var(--axis-color-surface);
+}
+
+.search-field mat-icon {
+  margin-right: 8px;
+  color: var(--axis-color-text-secondary);
+  font-size: 20px;
+}
+
+.search-field input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--axis-color-text);
+  font-size: 14px;
+}
+
+.search-field input::placeholder {
+  color: var(--axis-color-text-disabled);
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: var(--axis-radius-lg);
+  background: var(--axis-color-text);
+  color: #ffffff;
+}
+
+.today-section {
+  margin-top: 28px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.section-description {
+  display: block;
+  margin-top: 3px;
+  color: var(--axis-color-text-secondary);
+  font-size: 12px;
+}
+
+.see-all-button {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--axis-color-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.patient-card {
+  position: relative;
+  padding: 16px;
+  border: 1px solid var(--axis-color-border);
+  border-radius: var(--axis-radius-lg);
+  background: var(--axis-color-surface);
+}
+
+.patient-card__time {
+  margin-bottom: 12px;
+  color: var(--axis-color-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.patient-card__content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patient-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--axis-color-primary-light);
+  color: var(--axis-color-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.patient-info {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.patient-name {
+  overflow: hidden;
+  color: var(--axis-color-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.patient-procedure {
+  margin-top: 3px;
+  color: var(--axis-color-text-secondary);
+  font-size: 13px;
+}
+
+.patient-status {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.patient-status--confirmed {
+  background: #edf8f2;
+  color: var(--axis-color-success);
+}
+
+.patient-status--waiting {
+  background: #fff6df;
+  color: var(--axis-color-warning);
+}
+
+.patient-status--completed {
+  background: #eef1f5;
+  color: var(--axis-color-text-secondary);
+}

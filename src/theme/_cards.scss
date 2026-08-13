@@ -1,0 +1,16 @@
+.axis-card {
+  background: var(--axis-color-surface);
+  border: 1px solid var(--axis-color-border);
+  border-radius: var(--axis-radius-lg);
+  padding: 16px;
+}
+
+.axis-card--interactive {
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.axis-card--interactive:hover {
+  border-color: var(--axis-color-border-strong);
+  box-shadow: var(--axis-shadow-sm);
+}

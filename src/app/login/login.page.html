@@ -1,0 +1,107 @@
+<ion-content>
+  <main class="login-page">
+
+    <section class="login-brand">
+      <div class="login-brand__symbol">
+        A
+      </div>
+
+      <span class="login-brand__name">
+        CERYON AXIS
+      </span>
+    </section>
+
+    <section class="login-content">
+
+      <header class="login-header">
+        <h1 class="axis-page-title">
+          Bem-vindo
+        </h1>
+
+        <p class="login-description">
+          Acesse sua conta para continuar.
+        </p>
+      </header>
+
+      <form
+        class="login-form"
+        (submit)="login(); $event.preventDefault()"
+      >
+
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail</mat-label>
+
+          <input
+            matInput
+            type="email"
+            autocomplete="email"
+            [value]="email()"
+            (input)="updateEmail($any($event.target).value)"
+          />
+
+          <mat-icon matPrefix>
+            mail
+          </mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Senha</mat-label>
+
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            autocomplete="current-password"
+            [value]="password()"
+            (input)="updatePassword($any($event.target).value)"
+          />
+
+          <mat-icon matPrefix>
+            lock
+          </mat-icon>
+
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Mostrar ou ocultar senha"
+            (click)="togglePasswordVisibility()"
+          >
+            <mat-icon>
+              {{ hidePassword() ? 'visibility' : 'visibility_off' }}
+            </mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="login-options">
+          <button
+            type="button"
+            class="login-forgot-password"
+          >
+            Esqueci minha senha
+          </button>
+        </div>
+
+        <button
+          mat-flat-button
+          type="submit"
+          class="axis-button axis-button--full login-submit"
+          [disabled]="!isFormValid() || isLoading()"
+        >
+          @if (isLoading()) {
+            Entrando...
+          } @else {
+            Entrar
+          }
+        </button>
+
+      </form>
+
+    </section>
+
+    <footer class="login-footer">
+      <span>Ceryon Axis</span>
+      <span>Gestão inteligente para sua clínica</span>
+    </footer>
+
+  </main>
+</ion-content>

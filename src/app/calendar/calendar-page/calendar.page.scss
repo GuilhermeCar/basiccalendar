@@ -1,0 +1,64 @@
+.calendar-page {
+  box-sizing: border-box;
+  padding: 8px;
+}
+
+full-calendar {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep .fc {
+  font-family: inherit;
+}
+
+:host ::ng-deep .fc-timegrid-slot {
+  height: 2rem;
+}
+
+:host ::ng-deep .fc-toolbar-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+:host ::ng-deep .fc-button {
+  border-radius: 8px;
+}
+
+:host ::ng-deep .fc-event {
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 3px 5px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.calendar-header__navigation {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.calendar-header__navigation ion-button {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  margin: 0;
+}
+
+.calendar-header__title {
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calendar-header__select {
+  width: auto;
+  min-width: 90px;
+  margin-right: 4px;
+}

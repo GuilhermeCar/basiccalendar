@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar>
+    <div class="calendar-header">
+      <div class="calendar-header__navigation">
+        <ion-button fill="clear" (click)="onPrevious()">
+          <ion-icon
+            slot="icon-only"
+            name="chevron-back-outline"
+          ></ion-icon>
+        </ion-button>
+
+        <span class="calendar-header__title">
+          {{ calendarTitle() }}
+        </span>
+
+        <ion-button fill="clear" (click)="onNext()">
+          <ion-icon
+            slot="icon-only"
+            name="chevron-forward-outline"
+          ></ion-icon>
+        </ion-button>
+      </div>
+
+      <ion-select
+        class="calendar-header__select"
+        interface="popover"
+        [value]="currentView()"
+        (ionChange)="onViewChange($event.detail.value)"
+      >
+        <ion-select-option value="timeGridDay">
+          Dia
+        </ion-select-option>
+
+        <ion-select-option value="timeGridWeek">
+          Semana
+        </ion-select-option>
+
+        <ion-select-option value="dayGridMonth">
+          Mês
+        </ion-select-option>
+      </ion-select>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="calendar-page">
+    <full-calendar
+      #calendar
+      [options]="calendarOptions()"
+    ></full-calendar>
+  </div>
+</ion-content>
