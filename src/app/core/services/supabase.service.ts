@@ -26,9 +26,27 @@ export class SupabaseService {
     return this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/axis/home`
+        redirectTo: `${window.location.origin}/axis/home`,
+
+        scopes: [
+          'openid',
+          'email',
+          'profile',
+          'https://www.googleapis.com/auth/calendar.readonly'
+        ].join(' '),
+
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
       }
     });
+  }
+
+  async getProviderToken(): Promise<string | null> {
+    const { data } = await this.supabase.auth.getSession();
+
+    return data.session?.provider_token ?? null;
   }
 
   async signOut(): Promise<void> {

@@ -1,4 +1,4 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
@@ -9,6 +9,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
+import { GoogleCalendarService } from '../../core/services/google-calendar.service';
 
 @Component({
   selector: 'app-calendar',
@@ -22,6 +23,8 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 })
 export class CalendarPage {
   private readonly calendar = viewChild<FullCalendarComponent>('calendar');
+
+  private readonly googleCalendarService = inject(GoogleCalendarService);
 
   readonly calendarTitle = signal('');
   readonly currentView = signal('timeGridWeek');
@@ -55,15 +58,6 @@ export class CalendarPage {
     editable: true,
 
     datesSet: (info) => this.onDatesSet(info),
-
-    events: [
-      {
-        id: '1',
-        title: 'Maria Silva',
-        start: '2026-08-13T09:00:00',
-        end: '2026-08-13T10:00:00'
-      }
-    ]
   });
 
   onPrevious(): void {
@@ -86,7 +80,16 @@ export class CalendarPage {
       .changeView(view);
   }
 
-  private onDatesSet(info: DatesSetArg): void {
+  private async onDatesSet(info: DatesSetArg): Promise<void> {
+    this.updateCalendarTitle(info);
+
+    await this.loadGoogleEvents(
+      info.start,
+      info.end
+    );
+  }
+
+  private updateCalendarTitle(info: DatesSetArg): void {
     const date = info.view.currentStart;
 
     this.calendarTitle.set(
@@ -95,5 +98,62 @@ export class CalendarPage {
         year: 'numeric'
       }).format(date)
     );
+  }
+
+  private async loadGoogleEvents(
+    start: Date,
+    end: Date
+  ): Promise<void> {
+    try {
+      const calendars =
+        await this.googleCalendarService.getCalendars();
+
+      const googleEvents = [];
+
+      for (const calendar of calendars) {
+        const events =
+          await this.googleCalendarService.getEvents(
+            calendar.id,
+            start,
+            end
+          );
+
+        googleEvents.push(
+          ...events.map((event) => ({
+            id: `google-${calendar.id}-${event.id}`,
+
+            title: event.summary ?? 'Sem título',
+
+            start:
+              event.start.dateTime ??
+              event.start.date,
+
+            end:
+              event.end.dateTime ??
+              event.end.date,
+
+            extendedProps: {
+              source: 'google',
+              googleCalendarId: calendar.id,
+              googleEventId: event.id
+            }
+          }))
+        );
+      }
+
+      this.calendar()
+        ?.getApi()
+        .removeAllEvents();
+
+      this.calendar()
+        ?.getApi()
+        .addEventSource(googleEvents);
+
+    } catch (error) {
+      console.error(
+        'Erro ao carregar Google Calendar:',
+        error
+      );
+    }
   }
 }
