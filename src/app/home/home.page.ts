@@ -1,6 +1,7 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
+import { SupabaseService } from '../core/services/supabase.service';
 
 interface TodayPatient {
   id: number;
@@ -22,8 +23,36 @@ interface TodayPatient {
   styleUrl: './home.page.scss',
 })
 export class HomePage {
-  readonly userName = signal('Lucas');
-  readonly userPhoto = signal('assets/images/user-placeholder.jpg');
+  private readonly supabaseService = inject(SupabaseService);
+
+  readonly userName = signal('');
+  readonly userAvatar = signal<string | null>(null);
+  readonly userEmail = signal('');
+
+  async ionViewWillEnter(): Promise<void> {
+    const { data } = await this.supabaseService.getUser();
+
+    const user = data.user;
+
+    if (!user) {
+      return;
+    }
+
+    this.userName.set(
+      user.user_metadata?.['full_name'] ??
+      user.user_metadata?.['name'] ??
+      user.email ??
+      ''
+    );
+
+    this.userAvatar.set(
+      user.user_metadata?.['avatar_url'] ??
+      user.user_metadata?.['picture'] ??
+      null
+    );
+
+    this.userEmail.set(user.email ?? '');
+  }
 
   readonly patients = signal<TodayPatient[]>([
     {

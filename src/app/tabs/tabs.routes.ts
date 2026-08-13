@@ -14,23 +14,22 @@ export const routes: Routes = [
       {
         path: 'calendar',
         loadChildren: () =>
-          import('../calendar/calendar.routes').then((m) => m.calendarRoutes),
+          import('../calendar/calendar.routes').then(
+            (m) => m.calendarRoutes
+          ),
       },
       {
         path: 'pacients',
         loadChildren: () =>
-          import('../pacients/pacients.routes').then((m) => m.pacientsRoutes),
+          import('../pacients/pacients.routes').then(
+            (m) => m.pacientsRoutes
+          ),
       },
       {
         path: '',
-        redirectTo: '/tabs/tab1',
+        redirectTo: 'home',
         pathMatch: 'full',
       },
     ],
-  },
-  {
-    path: '',
-    redirectTo: '/tabs/tab1',
-    pathMatch: 'full',
   },
 ];

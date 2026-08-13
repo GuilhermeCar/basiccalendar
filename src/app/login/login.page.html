@@ -23,21 +23,13 @@
         </p>
       </header>
 
-      <form
-        class="login-form"
-        (submit)="login(); $event.preventDefault()"
-      >
+      <form class="login-form" (submit)="login(); $event.preventDefault()">
 
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
 
-          <input
-            matInput
-            type="email"
-            autocomplete="email"
-            [value]="email()"
-            (input)="updateEmail($any($event.target).value)"
-          />
+          <input matInput type="email" autocomplete="email" [value]="email()"
+            (input)="email.set($any($event.target).value)" />
 
           <mat-icon matPrefix>
             mail
@@ -47,25 +39,15 @@
         <mat-form-field appearance="outline">
           <mat-label>Senha</mat-label>
 
-          <input
-            matInput
-            [type]="hidePassword() ? 'password' : 'text'"
-            autocomplete="current-password"
-            [value]="password()"
-            (input)="updatePassword($any($event.target).value)"
-          />
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" autocomplete="current-password"
+            [value]="password()" (input)="password.set($any($event.target).value)" />
 
           <mat-icon matPrefix>
             lock
           </mat-icon>
 
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            aria-label="Mostrar ou ocultar senha"
-            (click)="togglePasswordVisibility()"
-          >
+          <button mat-icon-button matSuffix type="button" aria-label="Mostrar ou ocultar senha"
+            (click)="togglePasswordVisibility()">
             <mat-icon>
               {{ hidePassword() ? 'visibility' : 'visibility_off' }}
             </mat-icon>
@@ -73,26 +55,29 @@
         </mat-form-field>
 
         <div class="login-options">
-          <button
-            type="button"
-            class="login-forgot-password"
-          >
+          <button type="button" class="login-forgot-password">
             Esqueci minha senha
           </button>
         </div>
 
-        <button
-          mat-flat-button
-          type="submit"
-          class="axis-button axis-button--full login-submit"
-          [disabled]="!isFormValid() || isLoading()"
-        >
-          @if (isLoading()) {
-            Entrando...
+        <ion-button expand="block" [disabled]="loading()" (click)="login()">
+          @if (loading()) {
+          <ion-spinner name="crescent"></ion-spinner>
           } @else {
-            Entrar
+          Entrar
           }
-        </button>
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" [disabled]="loading()" (click)="loginWithGoogle()">
+          <ion-icon slot="start" name="logo-google"></ion-icon>
+          Entrar com Google
+        </ion-button>
+
+        @if (errorMessage()) {
+        <p class="login-error">
+          {{ errorMessage() }}
+        </p>
+        }
 
       </form>
 

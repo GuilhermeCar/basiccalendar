@@ -16,15 +16,8 @@
         </span>
       </div>
 
-      <button
-        type="button"
-        class="profile-button"
-      >
-        <img
-          [src]="userPhoto()"
-          alt="Foto do usuário"
-          class="profile-image"
-        />
+      <button type="button" class="profile-button">
+        <img [src]="userAvatar()" alt="Foto do usuário" class="profile-image" />
       </button>
     </header>
 
@@ -34,17 +27,10 @@
           search
         </mat-icon>
 
-        <input
-          type="text"
-          placeholder="Buscar paciente"
-        />
+        <input type="text" placeholder="Buscar paciente" />
       </div>
 
-      <button
-        type="button"
-        class="filter-button"
-        aria-label="Filtros"
-      >
+      <button type="button" class="filter-button" aria-label="Filtros">
         <mat-icon>
           tune
         </mat-icon>
@@ -64,10 +50,7 @@
           </span>
         </div>
 
-        <button
-          type="button"
-          class="see-all-button"
-        >
+        <button type="button" class="see-all-button">
           Ver agenda
         </button>
       </div>
@@ -76,40 +59,37 @@
 
         @for (patient of patients(); track patient.id) {
 
-          <article class="patient-card">
+        <article class="patient-card">
 
-            <div class="patient-card__time">
-              {{ patient.time }}
+          <div class="patient-card__time">
+            {{ patient.time }}
+          </div>
+
+          <div class="patient-card__content">
+
+            <div class="patient-avatar">
+              {{ patient.initials }}
             </div>
 
-            <div class="patient-card__content">
+            <div class="patient-info">
+              <strong class="patient-name">
+                {{ patient.name }}
+              </strong>
 
-              <div class="patient-avatar">
-                {{ patient.initials }}
-              </div>
-
-              <div class="patient-info">
-                <strong class="patient-name">
-                  {{ patient.name }}
-                </strong>
-
-                <span class="patient-procedure">
-                  {{ patient.procedure }}
-                </span>
-              </div>
-
+              <span class="patient-procedure">
+                {{ patient.procedure }}
+              </span>
             </div>
 
-            <div
-              class="patient-status"
-              [class.patient-status--confirmed]="patient.status === 'confirmed'"
-              [class.patient-status--waiting]="patient.status === 'waiting'"
-              [class.patient-status--completed]="patient.status === 'completed'"
-            >
-              {{ getStatusLabel(patient.status) }}
-            </div>
+          </div>
 
-          </article>
+          <div class="patient-status" [class.patient-status--confirmed]="patient.status === 'confirmed'"
+            [class.patient-status--waiting]="patient.status === 'waiting'"
+            [class.patient-status--completed]="patient.status === 'completed'">
+            {{ getStatusLabel(patient.status) }}
+          </div>
+
+        </article>
 
         }
 
