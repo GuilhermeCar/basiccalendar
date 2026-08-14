@@ -12,6 +12,7 @@ import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import { GoogleCalendarService } from '../../core/services/google-calendar.service';
 import { ModalController } from '@ionic/angular';
 import { AppointmentModalComponent } from '../appointment-modal/appointment-modal.component';
+import { AppointmentService } from '../../core/services/appointment.service';
 
 @Component({
   selector: 'app-calendar',
@@ -26,6 +27,7 @@ import { AppointmentModalComponent } from '../appointment-modal/appointment-moda
 export class CalendarPage {
   private readonly calendar = viewChild<FullCalendarComponent>('calendar');
 
+  private readonly appointmentService = inject(AppointmentService);
   private readonly googleCalendarService = inject(GoogleCalendarService);
   private readonly modalController = inject(ModalController);
 
@@ -66,7 +68,8 @@ export class CalendarPage {
     },
 
     eventClick: (info) => {
-      const source = info.event.extendedProps['source'];
+      const source =
+        info.event.extendedProps['source'];
 
       if (source !== 'axis') {
         return;
@@ -98,10 +101,12 @@ export class CalendarPage {
       .changeView(view);
   }
 
-  private async onDatesSet(info: DatesSetArg): Promise<void> {
+  private async onDatesSet(
+    info: DatesSetArg
+  ): Promise<void> {
     this.updateCalendarTitle(info);
 
-    await this.loadGoogleEvents(
+    await this.loadCalendarEvents(
       info.start,
       info.end
     );
@@ -118,29 +123,122 @@ export class CalendarPage {
     );
   }
 
-  private async loadGoogleEvents(
+  private async loadCalendarEvents(
     start: Date,
     end: Date
   ): Promise<void> {
+
+    const calendarApi =
+      this.calendar()?.getApi();
+
+    if (!calendarApi) {
+      return;
+    }
+
     try {
-      const calendars =
-        await this.googleCalendarService.getCalendars();
 
-      const googleEvents = [];
-
-      for (const calendar of calendars) {
-        const events =
-          await this.googleCalendarService.getEvents(
-            calendar.id,
+      const appointments =
+        await this.appointmentService
+          .getAppointmentsByPeriod(
             start,
             end
           );
 
-        googleEvents.push(
-          ...events.map((event) => ({
-            id: `google-${calendar.id}-${event.id}`,
+      const calendars =
+        await this.googleCalendarService
+          .getCalendars();
 
-            title: event.summary ?? 'Sem título',
+      const axisGoogleEventIds =
+        new Set(
+          appointments
+            .map(
+              appointment =>
+                appointment.google_event_id
+            )
+            .filter(
+              (id): id is string =>
+                !!id
+            )
+        );
+
+      calendarApi.removeAllEvents();
+
+      for (
+        const appointment
+        of appointments
+      ) {
+
+        calendarApi.addEvent({
+          id:
+            appointment.id,
+
+          title:
+            appointment.patient_name,
+
+          start:
+            appointment.start_at,
+
+          end:
+            appointment.end_at,
+
+          extendedProps: {
+            source:
+              'axis',
+
+            patientEmail:
+              appointment.patient_email,
+
+            patientPhone:
+              appointment.patient_phone,
+
+            description:
+              appointment.description,
+
+            googleCalendarId:
+              appointment.google_calendar_id,
+
+            googleEventId:
+              appointment.google_event_id,
+
+            googleSyncStatus:
+              appointment.google_sync_status
+          }
+        });
+      }
+
+      for (
+        const googleCalendar
+        of calendars
+      ) {
+
+        const events =
+          await this.googleCalendarService
+            .getEvents(
+              googleCalendar.id,
+              start,
+              end
+            );
+
+        for (
+          const event
+          of events
+        ) {
+
+          if (
+            axisGoogleEventIds.has(
+              event.id
+            )
+          ) {
+            continue;
+          }
+
+          calendarApi.addEvent({
+            id:
+              `google-${googleCalendar.id}-${event.id}`,
+
+            title:
+              event.summary ??
+              'Sem título',
 
             start:
               event.start.dateTime ??
@@ -151,27 +249,27 @@ export class CalendarPage {
               event.end.date,
 
             extendedProps: {
-              source: 'google',
-              googleCalendarId: calendar.id,
-              googleEventId: event.id
+              source:
+                'google',
+
+              googleCalendarId:
+                googleCalendar.id,
+
+              googleEventId:
+                event.id
             }
-          }))
-        );
+          });
+        }
       }
 
-      this.calendar()
-        ?.getApi()
-        .removeAllEvents();
-
-      this.calendar()
-        ?.getApi()
-        .addEventSource(googleEvents);
-
     } catch (error) {
+
       console.error(
-        'Erro ao carregar Google Calendar:',
+        'Erro ao carregar calendário:',
         error
       );
+
+      throw error;
     }
   }
 
@@ -272,8 +370,15 @@ export class CalendarPage {
       role === 'updated' &&
       data
     ) {
-      this.updateAppointmentOnCalendar(
-        data
+      this.updateAppointmentOnCalendar(data);
+    }
+
+    if (
+      role === 'deleted' &&
+      data
+    ) {
+      this.removeAppointmentFromCalendar(
+        data.id
       );
     }
   }
@@ -324,5 +429,45 @@ export class CalendarPage {
       'googleSyncStatus',
       appointment.google_sync_status
     );
+  }
+
+  private removeAppointmentFromCalendar(
+    appointmentId: string
+  ): void {
+    this.calendar()
+      ?.getApi()
+      .getEventById(appointmentId)
+      ?.remove();
+  }
+
+  async refreshCalendar(event: CustomEvent): Promise<void> {
+    try {
+      const calendarApi =
+        this.calendar()?.getApi();
+
+      if (!calendarApi) {
+        return;
+      }
+
+      const view =
+        calendarApi.view;
+
+      await this.loadCalendarEvents(
+        view.activeStart,
+        view.activeEnd
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Erro ao atualizar calendário:',
+        error
+      );
+
+    } finally {
+
+      (event.target as HTMLIonRefresherElement)
+        .complete();
+    }
   }
 }

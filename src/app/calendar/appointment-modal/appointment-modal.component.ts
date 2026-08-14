@@ -16,15 +16,17 @@ import {
   IonTextarea,
   IonTitle,
   IonToolbar,
-  ModalController
+  ModalController, IonIcon,
+  AlertController
 } from '@ionic/angular/standalone';
 
 import { AppointmentService } from '../../core/services/appointment.service';
+import { WhatsAppService } from '../../core/services/whatsapp.service';
 
 @Component({
   selector: 'app-appointment-modal',
   standalone: true,
-  imports: [
+  imports: [IonIcon,
     ReactiveFormsModule,
     IonHeader,
     IonToolbar,
@@ -44,6 +46,8 @@ export class AppointmentModalComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly modalController = inject(ModalController);
   private readonly appointmentService = inject(AppointmentService);
+  private readonly whatsAppService = inject(WhatsAppService);
+  private readonly alertController = inject(AlertController);
 
   startDate?: Date;
   appointmentId?: string;
@@ -208,5 +212,83 @@ export class AppointmentModalComponent {
     return localDate
       .toISOString()
       .slice(0, 16);
+  }
+
+  openWhatsApp(): void {
+    const phone =
+      this.form.controls.patientPhone.value;
+
+    if (!phone) {
+      return;
+    }
+
+    this.whatsAppService.open(
+      phone
+    );
+  }
+
+  async deleteAppointment(): Promise<void> {
+    if (!this.appointmentId) {
+      return;
+    }
+
+    const alert =
+      await this.alertController.create({
+        header: 'Excluir agendamento?',
+        message:
+          'Essa ação removerá o agendamento do Axis e também tentará removê-lo do Google Calendar.',
+
+        buttons: [
+          {
+            text: 'Cancelar',
+            role: 'cancel'
+          },
+          {
+            text: 'Excluir',
+            role: 'destructive',
+            handler: () => {
+              void this.confirmDelete();
+            }
+          }
+        ]
+      });
+
+    await alert.present();
+  }
+
+  private async confirmDelete(): Promise<void> {
+    if (!this.appointmentId) {
+      return;
+    }
+
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      const id = this.appointmentId;
+
+      await this.appointmentService
+        .deleteWithGoogle(id);
+
+      await this.modalController.dismiss(
+        {
+          id
+        },
+        'deleted'
+      );
+
+    } catch (error) {
+      console.error(
+        'Erro ao excluir appointment:',
+        error
+      );
+
+      this.errorMessage.set(
+        'Não foi possível excluir o agendamento.'
+      );
+
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

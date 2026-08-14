@@ -56,6 +56,16 @@
     </p>
     }
 
+    @if (appointmentId) {
+    <ion-button type="button" expand="block" fill="outline" [disabled]="!form.controls.patientPhone.value"
+      (click)="openWhatsApp()">
+      <ion-icon slot="start" name="logo-whatsapp"></ion-icon>
+
+      Conversar no WhatsApp
+    </ion-button>
+    }
+
+    @if (!appointmentId) {
     <ion-button class="appointment-form__submit" type="submit" expand="block" [disabled]="loading()">
       @if (loading()) {
       Salvando...
@@ -63,5 +73,15 @@
       Criar agendamento
       }
     </ion-button>
+    }
+
+    @if (appointmentId) {
+    <ion-button type="button" expand="block" fill="outline" color="danger" [disabled]="loading()"
+      (click)="deleteAppointment()">
+      <ion-icon slot="start" name="trash-outline"></ion-icon>
+
+      Excluir agendamento
+    </ion-button>
+    }
   </form>
 </ion-content>

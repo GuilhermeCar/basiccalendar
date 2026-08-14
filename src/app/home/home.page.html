@@ -92,6 +92,13 @@
                 {{ patient.procedure }}
               </span>
 
+              @if (patient.phone) {
+              <button type="button" class="patient-whatsapp-button" aria-label="Conversar pelo WhatsApp"
+                (click)="openWhatsApp(patient)">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+              </button>
+              }
+
             </div>
 
           </div>

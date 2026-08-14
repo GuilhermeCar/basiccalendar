@@ -222,6 +222,41 @@ export class GoogleCalendarService {
     return response.json();
   }
 
+  async deleteEvent(
+    calendarId: string,
+    eventId: string
+  ): Promise<void> {
+    const token =
+      await this.supabaseService.getProviderToken();
+
+    if (!token) {
+      throw new Error(
+        'Token do Google não encontrado.'
+      );
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+      {
+        method: 'DELETE',
+
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+
+      console.error(error);
+
+      throw new Error(
+        'Não foi possível excluir o evento do Google Calendar.'
+      );
+    }
+  }
+
 }
 
 

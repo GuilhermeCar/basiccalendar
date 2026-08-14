@@ -3,7 +3,8 @@ import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/angu
 import { addIcons } from 'ionicons';
 import {
   homeOutline, calendarOutline, peopleOutline,
-  chevronForwardOutline, chevronBackOutline, logoGoogle
+  chevronForwardOutline, chevronBackOutline, logoGoogle,
+  logoWhatsapp
 } from 'ionicons/icons';
 
 @Component({
@@ -18,7 +19,8 @@ export class TabsPage {
   constructor() {
     addIcons({
       homeOutline, calendarOutline, peopleOutline,
-      chevronForwardOutline, chevronBackOutline, logoGoogle
+      chevronForwardOutline, chevronBackOutline, logoGoogle,
+      logoWhatsapp
     });
   }
 }

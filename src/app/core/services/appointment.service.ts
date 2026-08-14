@@ -79,6 +79,36 @@ export class AppointmentService {
     return data;
   }
 
+  async getAppointmentsByPeriod(
+    start: Date,
+    end: Date
+  ) {
+    const { data, error } =
+      await this.supabaseService.client
+        .from('appointments')
+        .select('*')
+        .gte(
+          'start_at',
+          start.toISOString()
+        )
+        .lt(
+          'start_at',
+          end.toISOString()
+        )
+        .order(
+          'start_at',
+          {
+            ascending: true
+          }
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    return data ?? [];
+  }
+
 
   private buildGoogleDescription(
     patientName: string,
@@ -396,6 +426,42 @@ export class AppointmentService {
         ...appointment,
         google_sync_status: 'error'
       };
+    }
+  }
+
+  async deleteWithGoogle(
+    appointmentId: string
+  ): Promise<void> {
+    const appointment =
+      await this.getById(appointmentId);
+
+    const { error } =
+      await this.supabaseService.client
+        .from('appointments')
+        .delete()
+        .eq('id', appointmentId);
+
+    if (error) {
+      throw error;
+    }
+
+    if (
+      !appointment.google_calendar_id ||
+      !appointment.google_event_id
+    ) {
+      return;
+    }
+
+    try {
+      await this.googleCalendarService.deleteEvent(
+        appointment.google_calendar_id,
+        appointment.google_event_id
+      );
+    } catch (error) {
+      console.error(
+        'Appointment removido do Axis, mas não foi possível remover do Google Calendar:',
+        error
+      );
     }
   }
 }

@@ -10,10 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { SupabaseService } from '../core/services/supabase.service';
 import { AppointmentService } from '../core/services/appointment.service';
+import { WhatsAppService } from '../core/services/whatsapp.service';
 
 interface TodayPatient {
   id: string;
   name: string;
+  phone: string | null;
   time: string;
   procedure: string;
   initials: string;
@@ -35,6 +37,9 @@ export class HomePage {
 
   private readonly appointmentService =
     inject(AppointmentService);
+
+  private readonly whatsAppService =
+    inject(WhatsAppService);
 
   readonly userName = signal('');
   readonly userAvatar = signal<string | null>(null);
@@ -111,6 +116,9 @@ export class HomePage {
             name:
               appointment.patient_name,
 
+            phone:
+              appointment.patient_phone,
+
             time:
               this.formatTime(
                 appointment.start_at
@@ -166,5 +174,17 @@ export class HomePage {
 
   async logout(): Promise<void> {
     await this.supabaseService.signOut();
+  }
+
+  openWhatsApp(
+    patient: TodayPatient
+  ): void {
+    if (!patient.phone) {
+      return;
+    }
+
+    this.whatsAppService.open(
+      patient.phone
+    );
   }
 }
