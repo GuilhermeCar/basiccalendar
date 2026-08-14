@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button color="medium" (click)="cancel()">
+        Cancelar
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>
+      Novo agendamento
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button [strong]="true" [disabled]="loading()" (click)="save()">
+        Salvar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form class="appointment-form" [formGroup]="form" (ngSubmit)="save()">
+    <ion-item>
+      <ion-input label="Nome do paciente" labelPlacement="stacked" placeholder="Digite o nome"
+        formControlName="patientName"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-input type="email" label="E-mail" labelPlacement="stacked" placeholder="paciente@email.com"
+        formControlName="patientEmail"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-input type="tel" label="Telefone" labelPlacement="stacked" placeholder="(31) 99999-9999"
+        formControlName="patientPhone"></ion-input>
+    </ion-item>
+
+    <div class="appointment-form__dates">
+      <ion-item>
+        <ion-input type="datetime-local" label="Início" labelPlacement="stacked" formControlName="startAt"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input type="datetime-local" label="Fim" labelPlacement="stacked" formControlName="endAt"></ion-input>
+      </ion-item>
+    </div>
+
+    <ion-item>
+      <ion-textarea label="Descrição" labelPlacement="stacked" placeholder="Observações sobre o atendimento"
+        [autoGrow]="true" rows="4" formControlName="description"></ion-textarea>
+    </ion-item>
+
+    @if (errorMessage()) {
+    <p class="appointment-form__error">
+      {{ errorMessage() }}
+    </p>
+    }
+
+    <ion-button class="appointment-form__submit" type="submit" expand="block" [disabled]="loading()">
+      @if (loading()) {
+      Salvando...
+      } @else {
+      Criar agendamento
+      }
+    </ion-button>
+  </form>
+</ion-content>

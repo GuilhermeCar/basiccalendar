@@ -10,6 +10,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import { GoogleCalendarService } from '../../core/services/google-calendar.service';
+import { ModalController } from '@ionic/angular';
+import { AppointmentModalComponent } from '../appointment-modal/appointment-modal.component';
 
 @Component({
   selector: 'app-calendar',
@@ -25,6 +27,7 @@ export class CalendarPage {
   private readonly calendar = viewChild<FullCalendarComponent>('calendar');
 
   private readonly googleCalendarService = inject(GoogleCalendarService);
+  private readonly modalController = inject(ModalController);
 
   readonly calendarTitle = signal('');
   readonly currentView = signal('timeGridWeek');
@@ -58,6 +61,21 @@ export class CalendarPage {
     editable: true,
 
     datesSet: (info) => this.onDatesSet(info),
+    dateClick: (info) => {
+      void this.openAppointmentModal(info.date);
+    },
+
+    eventClick: (info) => {
+      const source = info.event.extendedProps['source'];
+
+      if (source !== 'axis') {
+        return;
+      }
+
+      void this.openEditAppointmentModal(
+        info.event.id
+      );
+    },
   });
 
   onPrevious(): void {
@@ -155,5 +173,156 @@ export class CalendarPage {
         error
       );
     }
+  }
+
+  private async openAppointmentModal(
+    date: Date
+  ): Promise<void> {
+    const modal =
+      await this.modalController.create({
+        component: AppointmentModalComponent,
+
+        componentProps: {
+          startDate: date
+        },
+
+        breakpoints: [
+          0,
+          0.75,
+          1
+        ],
+
+        initialBreakpoint: 0.75
+      });
+
+    await modal.present();
+
+    const { data, role } =
+      await modal.onWillDismiss();
+
+    if (
+      role === 'created' &&
+      data
+    ) {
+      this.addAppointmentToCalendar(data);
+    }
+  }
+
+  private addAppointmentToCalendar(
+    appointment: any
+  ): void {
+    this.calendar()
+      ?.getApi()
+      .addEvent({
+        id: appointment.id,
+
+        title: appointment.patient_name,
+
+        start: appointment.start_at,
+        end: appointment.end_at,
+
+        extendedProps: {
+          source: 'axis',
+          patientEmail:
+            appointment.patient_email,
+
+          patientPhone:
+            appointment.patient_phone,
+
+          description:
+            appointment.description,
+
+          googleEventId:
+            appointment.google_event_id,
+
+          googleSyncStatus:
+            appointment.google_sync_status
+        }
+      });
+  }
+
+  private async openEditAppointmentModal(
+    appointmentId: string
+  ): Promise<void> {
+    const modal =
+      await this.modalController.create({
+        component:
+          AppointmentModalComponent,
+
+        componentProps: {
+          appointmentId
+        },
+
+        breakpoints: [
+          0,
+          0.75,
+          1
+        ],
+
+        initialBreakpoint:
+          0.75
+      });
+
+    await modal.present();
+
+    const { data, role } =
+      await modal.onWillDismiss();
+
+    if (
+      role === 'updated' &&
+      data
+    ) {
+      this.updateAppointmentOnCalendar(
+        data
+      );
+    }
+  }
+
+  private updateAppointmentOnCalendar(
+    appointment: any
+  ): void {
+    const event =
+      this.calendar()
+        ?.getApi()
+        .getEventById(
+          appointment.id
+        );
+
+    if (!event) {
+      return;
+    }
+
+    event.setProp(
+      'title',
+      appointment.patient_name
+    );
+
+    event.setStart(
+      appointment.start_at
+    );
+
+    event.setEnd(
+      appointment.end_at
+    );
+
+    event.setExtendedProp(
+      'patientEmail',
+      appointment.patient_email
+    );
+
+    event.setExtendedProp(
+      'patientPhone',
+      appointment.patient_phone
+    );
+
+    event.setExtendedProp(
+      'description',
+      appointment.description
+    );
+
+    event.setExtendedProp(
+      'googleSyncStatus',
+      appointment.google_sync_status
+    );
   }
 }

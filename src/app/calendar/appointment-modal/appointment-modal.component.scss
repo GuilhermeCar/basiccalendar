@@ -1,0 +1,28 @@
+.appointment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+.appointment-form__dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.appointment-form__error {
+  margin: 0;
+  color: var(--ion-color-danger);
+  font-size: 14px;
+}
+
+.appointment-form__submit {
+  margin-top: 8px;
+}
+
+@media (max-width: 576px) {
+  .appointment-form__dates {
+    grid-template-columns: 1fr;
+  }
+}

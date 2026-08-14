@@ -32,7 +32,8 @@ export class SupabaseService {
           'openid',
           'email',
           'profile',
-          'https://www.googleapis.com/auth/calendar.readonly'
+          'https://www.googleapis.com/auth/calendar.readonly',
+          'https://www.googleapis.com/auth/calendar.events'
         ].join(' '),
 
         queryParams: {
@@ -61,7 +62,12 @@ export class SupabaseService {
     return this.supabase.auth.getSession();
   }
 
+  get client(): SupabaseClient {
+    return this.supabase;
+  }
+
   async getUser() {
     return this.supabase.auth.getUser();
   }
+
 }

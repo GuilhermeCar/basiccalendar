@@ -1,14 +1,21 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
+
 import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
+
 import { SupabaseService } from '../core/services/supabase.service';
+import { AppointmentService } from '../core/services/appointment.service';
 
 interface TodayPatient {
-  id: number;
+  id: string;
   name: string;
   time: string;
   procedure: string;
-  status: 'confirmed' | 'waiting' | 'completed';
   initials: string;
 }
 
@@ -17,20 +24,51 @@ interface TodayPatient {
   standalone: true,
   imports: [
     IonicModule,
-    MatIconModule,
+    MatIconModule
   ],
   templateUrl: './home.page.html',
-  styleUrl: './home.page.scss',
+  styleUrl: './home.page.scss'
 })
 export class HomePage {
-  private readonly supabaseService = inject(SupabaseService);
+  private readonly supabaseService =
+    inject(SupabaseService);
+
+  private readonly appointmentService =
+    inject(AppointmentService);
 
   readonly userName = signal('');
   readonly userAvatar = signal<string | null>(null);
   readonly userEmail = signal('');
 
+  readonly todayLabel =
+    new Intl.DateTimeFormat(
+      'pt-BR',
+      {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      }
+    ).format(new Date());
+
+  readonly patients =
+    signal<TodayPatient[]>([]);
+
+  readonly loadingAppointments =
+    signal(false);
+
+  readonly totalPatients =
+    computed(() => this.patients().length);
+
   async ionViewWillEnter(): Promise<void> {
-    const { data } = await this.supabaseService.getUser();
+    await Promise.all([
+      this.loadUser(),
+      this.loadAppointments()
+    ]);
+  }
+
+  private async loadUser(): Promise<void> {
+    const { data } =
+      await this.supabaseService.getUser();
 
     const user = data.user;
 
@@ -51,53 +89,82 @@ export class HomePage {
       null
     );
 
-    this.userEmail.set(user.email ?? '');
+    this.userEmail.set(
+      user.email ?? ''
+    );
   }
 
-  readonly patients = signal<TodayPatient[]>([
-    {
-      id: 1,
-      name: 'Mariana Oliveira',
-      time: '08:30',
-      procedure: 'Consulta',
-      status: 'confirmed',
-      initials: 'MO',
-    },
-    {
-      id: 2,
-      name: 'João Ferreira',
-      time: '10:00',
-      procedure: 'Retorno',
-      status: 'waiting',
-      initials: 'JF',
-    },
-    {
-      id: 3,
-      name: 'Ana Paula Silva',
-      time: '13:30',
-      procedure: 'Avaliação',
-      status: 'confirmed',
-      initials: 'AS',
-    },
-    {
-      id: 4,
-      name: 'Carlos Mendes',
-      time: '15:00',
-      procedure: 'Consulta',
-      status: 'completed',
-      initials: 'CM',
-    },
-  ]);
+  private async loadAppointments(): Promise<void> {
+    this.loadingAppointments.set(true);
 
-  readonly totalPatients = computed(() => this.patients().length);
+    try {
+      const appointments =
+        await this.appointmentService
+          .getTodayAppointments();
 
-  getStatusLabel(status: TodayPatient['status']): string {
-    const labels = {
-      confirmed: 'Confirmado',
-      waiting: 'Aguardando',
-      completed: 'Concluído',
-    };
+      this.patients.set(
+        appointments.map(
+          (appointment) => ({
+            id:
+              appointment.id,
 
-    return labels[status];
+            name:
+              appointment.patient_name,
+
+            time:
+              this.formatTime(
+                appointment.start_at
+              ),
+
+            procedure:
+              appointment.description ||
+              'Agendamento',
+
+            initials:
+              this.getInitials(
+                appointment.patient_name
+              )
+          })
+        )
+      );
+    } catch (error) {
+      console.error(
+        'Erro ao carregar agendamentos:',
+        error
+      );
+
+      this.patients.set([]);
+    } finally {
+      this.loadingAppointments.set(false);
+    }
+  }
+
+  private formatTime(
+    date: string
+  ): string {
+    return new Intl.DateTimeFormat(
+      'pt-BR',
+      {
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    ).format(new Date(date));
+  }
+
+  private getInitials(
+    name: string
+  ): string {
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) =>
+        part.charAt(0).toUpperCase()
+      )
+      .join('');
+  }
+
+  async logout(): Promise<void> {
+    await this.supabaseService.signOut();
   }
 }

@@ -46,7 +46,7 @@
           </h2>
 
           <span class="section-description">
-            Quarta-feira, 12 de agosto
+            {{ todayLabel }}
           </span>
         </div>
 
@@ -57,7 +57,18 @@
 
       <div class="patient-list">
 
-        @for (patient of patients(); track patient.id) {
+        @if (loadingAppointments()) {
+
+        <div class="patient-list__loading">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+
+        } @else {
+
+        @for (
+        patient of patients();
+        track patient.id
+        ) {
 
         <article class="patient-card">
 
@@ -72,6 +83,7 @@
             </div>
 
             <div class="patient-info">
+
               <strong class="patient-name">
                 {{ patient.name }}
               </strong>
@@ -79,17 +91,20 @@
               <span class="patient-procedure">
                 {{ patient.procedure }}
               </span>
+
             </div>
 
           </div>
 
-          <div class="patient-status" [class.patient-status--confirmed]="patient.status === 'confirmed'"
-            [class.patient-status--waiting]="patient.status === 'waiting'"
-            [class.patient-status--completed]="patient.status === 'completed'">
-            {{ getStatusLabel(patient.status) }}
-          </div>
-
         </article>
+
+        } @empty {
+
+        <div class="patient-list__empty">
+          Nenhum paciente agendado para hoje.
+        </div>
+
+        }
 
         }
 

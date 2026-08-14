@@ -23,6 +23,27 @@ export interface GoogleCalendarEvent {
   };
 }
 
+export interface CreateGoogleEventRequest {
+  calendarId: string;
+
+  title: string;
+  description?: string;
+
+  start: Date;
+  end: Date;
+}
+
+export interface UpdateGoogleEventRequest {
+  calendarId: string;
+  eventId: string;
+
+  title: string;
+  description?: string;
+
+  start: Date;
+  end: Date;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -95,6 +116,112 @@ export class GoogleCalendarService {
 
     return data.items ?? [];
   }
+
+  async createEvent(request: CreateGoogleEventRequest) {
+    const token =
+      await this.supabaseService.getProviderToken();
+
+    if (!token) {
+      throw new Error(
+        'Token do Google não encontrado.'
+      );
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(request.calendarId)}/events`,
+      {
+        method: 'POST',
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          summary: request.title,
+
+          description: request.description,
+
+          start: {
+            dateTime: request.start.toISOString()
+          },
+
+          end: {
+            dateTime: request.end.toISOString()
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+
+      console.error(error);
+
+      throw new Error(
+        'Não foi possível criar o evento no Google Calendar.'
+      );
+    }
+
+    return response.json();
+  }
+
+  async updateEvent(
+    request: UpdateGoogleEventRequest
+  ) {
+    const token =
+      await this.supabaseService.getProviderToken();
+
+    if (!token) {
+      throw new Error(
+        'Token do Google não encontrado.'
+      );
+    }
+
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(request.calendarId)}/events/${encodeURIComponent(request.eventId)}`,
+      {
+        method: 'PUT',
+
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          summary:
+            request.title,
+
+          description:
+            request.description,
+
+          start: {
+            dateTime:
+              request.start.toISOString()
+          },
+
+          end: {
+            dateTime:
+              request.end.toISOString()
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const error =
+        await response.json();
+
+      console.error(error);
+
+      throw new Error(
+        'Não foi possível atualizar o evento no Google Calendar.'
+      );
+    }
+
+    return response.json();
+  }
+
 }
 
 
